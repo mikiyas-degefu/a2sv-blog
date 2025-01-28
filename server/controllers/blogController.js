@@ -43,7 +43,7 @@ exports.addBlog = [
         })
 
         if (blog) {
-            res.status(201).json({ message: 'Game created successfully!', blog });
+            res.status(201).json({ message: 'Blog created successfully!', blog });
         }
 
     })
@@ -56,8 +56,11 @@ exports.addBlog = [
  * @route Get /api/blog
  * @access private
  */
-
 exports.getAllBlogs = asyncHandler(async (req, res) => {
-    const blogs = await Blog.find()
+    const blogs = await Blog.find().populate(
+        'user_id',
+        'username'
+    );
     res.status(200).json(blogs);
 })
+
