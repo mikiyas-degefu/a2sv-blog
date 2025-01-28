@@ -54,16 +54,9 @@ exports.addBlog = [
  * @function getAllBlogs
  * @desc get all blogs
  * @route Get /api/blog
- * @access private
+ * @access public
  */
 exports.getAllBlogs = asyncHandler(async (req, res) => {
-    // Blog.virtual("comments", {
-    //     ref: "Comment",
-    //     foreignField: "blog_id",
-    //     localField: "_id"
-    // });
-
-
     const blogs = await Blog.aggregate([
         {
             $lookup: {
@@ -97,6 +90,23 @@ exports.getAllBlogs = asyncHandler(async (req, res) => {
     res.status(200).json(blogs);
 })
 
+
+/**
+ * @function getBlogId
+ * @desc get blog by Id
+ * @route Get /api/blog/id
+ * @access public
+ */
+exports.getBlog = asyncHandler(async (req, res) => {
+
+    const blog = await Blog.findById(req.params.id)
+
+    if (!blog) {
+        res.status(404)
+        throw new Error("Blog not found!")
+    }
+    res.status(200).json(blog);
+})
 
 /**
  * @function updateBlog
@@ -161,6 +171,7 @@ exports.deleteBlog = asyncHandler(async (req, res) => {
     const blog = await Blog.findById(
         req.params.id
     )
+
 
     if (!blog || blog.user_id != req.user._id) {
         res.status(404)
