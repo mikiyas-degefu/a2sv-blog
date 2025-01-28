@@ -1,29 +1,23 @@
-const User = require('../models/userModel')
 const Blog = require('../models/blogModel')
-const BlogRating = require('../models/blogRatingModel')
+const Like = require('../models/likeModel')
 const asyncHandler = require("express-async-handler");
 const { check, validationResult } = require("express-validator");
 
 
 /**
- * @function addRating
- * @desc add blog rate
- * @route POST /api/blog-rate
+ * @function addLike
+ * @desc add blog like
+ * @route POST /api/like
  * @access private
  */
 
 
-exports.addRating = [
+exports.addLike = [
     check('blog_id')
         .notEmpty()
         .withMessage("title is required")
         .isLength({ min: 3 })
         .withMessage("title must be at least 3 characters long"),
-    check('rating')
-        .notEmpty()
-        .withMessage("rating is required")
-        .isNumeric({ min: 5, max: 5 })
-        .withMessage("rating should be between 1-5"),
     asyncHandler(async (req, res) => {
         const errors = validationResult(req);
 
@@ -33,7 +27,7 @@ exports.addRating = [
         }
 
         // Extract validated data
-        const { blog_id, rating } = req.body;
+        const { blog_id } = req.body;
 
         const blog = await Blog.findOne({ _id: blog_id });
 
@@ -42,33 +36,31 @@ exports.addRating = [
             throw new Error('Blog not found!');
         }
 
-        //check user rate the blog
-        const checkBlogRatingAvailability = await BlogRating.findOne({
+        //check user like the blog
+        const checkLikeAvailability = await Like.findOne({
             blog_id: blog_id,
             user_id: req.user._id
         })
 
-        if (checkBlogRatingAvailability) {
-            const updatedBlogRatingAvailability = await BlogRating.findByIdAndUpdate(
-                checkBlogRatingAvailability.id,
-                { rating: rating },
+        if (checkLikeAvailability) {
+            const updatedLikeAvailability = await Like.findByIdAndUpdate(
+                checkLikeAvailability.id,
                 { new: true }
             )
-            if (updatedBlogRatingAvailability) {
-                res.status(201).json({ message: 'Blog successfully rated!', checkBlogRatingAvailability });
+            if (updatedLikeAvailability) {
+                res.status(201).json({ message: 'Blog successfully liked!', updatedLikeAvailability });
                 return
             }
 
         }
 
-        const blogRating = await BlogRating.create({
+        const like = await Like.create({
             user_id: req.user._id,
             blog_id: blog_id,
-            rating: rating
         })
 
-        if (blogRating) {
-            res.status(201).json({ message: 'Blog successfully rated!', blog });
+        if (like) {
+            res.status(201).json({ message: 'Blog successfully liked!', like });
         }
 
     })

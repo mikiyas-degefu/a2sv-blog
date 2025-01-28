@@ -1,6 +1,5 @@
-const User = require('../models/userModel')
 const Blog = require('../models/blogModel')
-const BlogRating = require('../models/blogRatingModel')
+const Comment = require('../models/commentModel')
 const asyncHandler = require("express-async-handler");
 const { check, validationResult } = require("express-validator");
 
@@ -13,17 +12,17 @@ const { check, validationResult } = require("express-validator");
  */
 
 
-exports.addRating = [
+exports.addComment = [
     check('blog_id')
         .notEmpty()
         .withMessage("title is required")
         .isLength({ min: 3 })
         .withMessage("title must be at least 3 characters long"),
-    check('rating')
+    check('content')
         .notEmpty()
-        .withMessage("rating is required")
-        .isNumeric({ min: 5, max: 5 })
-        .withMessage("rating should be between 1-5"),
+        .withMessage("content is required")
+        .isLength({ min: 1 })
+        .withMessage("content must be at least 1 characters long"),
     asyncHandler(async (req, res) => {
         const errors = validationResult(req);
 
@@ -33,7 +32,7 @@ exports.addRating = [
         }
 
         // Extract validated data
-        const { blog_id, rating } = req.body;
+        const { blog_id, content } = req.body;
 
         const blog = await Blog.findOne({ _id: blog_id });
 
@@ -43,32 +42,32 @@ exports.addRating = [
         }
 
         //check user rate the blog
-        const checkBlogRatingAvailability = await BlogRating.findOne({
+        const checkCommentAvailability = await Comment.findOne({
             blog_id: blog_id,
             user_id: req.user._id
         })
 
-        if (checkBlogRatingAvailability) {
-            const updatedBlogRatingAvailability = await BlogRating.findByIdAndUpdate(
-                checkBlogRatingAvailability.id,
-                { rating: rating },
+        if (checkCommentAvailability) {
+            const updatedCommentAvailability = await Comment.findByIdAndUpdate(
+                checkCommentAvailability.id,
+                { content: content },
                 { new: true }
             )
-            if (updatedBlogRatingAvailability) {
-                res.status(201).json({ message: 'Blog successfully rated!', checkBlogRatingAvailability });
+            if (updatedCommentAvailability) {
+                res.status(201).json({ message: 'Blog successfully commented!', updatedCommentAvailability });
                 return
             }
 
         }
 
-        const blogRating = await BlogRating.create({
+        const comment = await Comment.create({
             user_id: req.user._id,
             blog_id: blog_id,
-            rating: rating
+            content: content
         })
 
-        if (blogRating) {
-            res.status(201).json({ message: 'Blog successfully rated!', blog });
+        if (comment) {
+            res.status(201).json({ message: 'Blog successfully commented!', comment });
         }
 
     })

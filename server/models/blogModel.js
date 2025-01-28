@@ -15,7 +15,7 @@ const blogSchema = mongoose.Schema({
     content: {
         type: String,
         required: [true, 'Content is required!'],
-        minlength: [10, "Content must be at least 2 characters long!"],
+        minlength: [10, "Content must be at least 10 characters long!"],
     },
 },
     { timestamps: true }
