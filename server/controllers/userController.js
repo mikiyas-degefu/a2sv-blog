@@ -1,4 +1,4 @@
-const User = require('../models/userModal')
+const User = require('../models/userModel')
 const asyncHandler = require("express-async-handler");
 const bcrypt = require('bcrypt');
 const { check, validationResult } = require("express-validator");

@@ -12,6 +12,7 @@ app.use(errorHandler)
 
 //routes
 app.use('/api/user', require('./routes/userRoute'))
+app.use('/api/blog', require('./routes/blogRoute'))
 
 const port = process.env.PORT
 
