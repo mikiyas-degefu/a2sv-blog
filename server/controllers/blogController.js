@@ -116,7 +116,7 @@ exports.updateBlog = [
         .isLength({ min: 10 })
         .withMessage("content must be at least 10 characters long"),
     asyncHandler(async (req, res) => {
-        const blog = await Blog.find({
+        const blog = await Blog.findById({
             _id: req.params.id,
             user_id: req.user._id
         })
@@ -149,3 +149,26 @@ exports.updateBlog = [
     })
 
 ]
+
+
+/**
+ * @function deleteBlog
+ * @desc update blog
+ * @route DELETE /api/blog/id
+ * @access private
+ */
+exports.deleteBlog = asyncHandler(async (req, res) => {
+    const blog = await Blog.findById(
+        req.params.id
+    )
+
+    if (!blog || blog.user_id != req.user._id) {
+        res.status(404)
+        throw new Error("Blog not found!")
+    }
+
+    await blog.deleteOne()
+    res.status(200).json(blog)
+
+
+})
